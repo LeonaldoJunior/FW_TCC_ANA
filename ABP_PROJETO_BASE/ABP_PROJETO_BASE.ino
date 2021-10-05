@@ -40,7 +40,7 @@ RTC_DATA_ATTR int bootCount = 0;
 //fator de conversão de microsegundos para segundos
 #define uS_TO_S_FACTOR 1000000
 //tempo que o ESP32 ficará em modo sleep (em segundos)
-#define TIME_TO_SLEEP 10
+#define TIME_TO_SLEEP 30
 
 // Define Trig and Echo pin:
 #define trigPin 5
@@ -49,6 +49,9 @@ RTC_DATA_ATTR int bootCount = 0;
 // Define variables:
 long duration;
 int distance;
+
+//Fcnt
+RTC_DATA_ATTR unsigned int fcnt = 0;
 
 
 static osjob_t setLowFiveSecondsJob;
@@ -166,7 +169,7 @@ void onEvent (ev_t ev) {
             // Schedule next transmission
      
 //             os_setTimedCallback(&setLowFiveSecondsJob, os_getTime()+sec2osticks(1), setLow_5);
-              
+              Serial.print("LMIC seqnoUp VALUE: ");Serial.println(LMIC.seqnoUp);
              setTrigPinToLowForFiveSeconds(&setLowFiveSecondsJob);
             // os_setTimedCallback(&sendjob, os_getTime()+sec2osticks(TX_INTERVAL), do_send);
 
@@ -210,8 +213,9 @@ void do_send(osjob_t* j){
           Serial.println("TENSÃO DA BATERIA: ");
        //   Serial.println(analogRead(34)*3.3/4095*2);
           Serial.println(value);
-               
-        
+          
+        LMIC.seqnoUp =  fcnt;
+        fcnt++;
         // Prepare upstream data transmission at the next possible time.
         LMIC_setTxData2(1, mydata, sizeof(mydata)-1, 0);
         Serial.println(F("Packet queued"));
